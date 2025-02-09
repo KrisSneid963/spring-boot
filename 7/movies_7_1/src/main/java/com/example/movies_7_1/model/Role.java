@@ -2,6 +2,8 @@ package com.example.movies_7_1.model;
 
 import jakarta.persistence.*;
 
+import java.util.Set;
+
 @Entity
 @Table(name = "roles")
 public class Role {
@@ -13,6 +15,9 @@ public class Role {
     @Column(unique = true, nullable = false)
     private String name;
 
+    @ManyToMany(mappedBy = "roles")
+    private Set<User> users;
+
     public Role() {
     }
 
@@ -20,11 +25,15 @@ public class Role {
         this.name = name;
     }
 
-    public Long getId() {
-        return id;
-    }
-
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+    
+    public Long getId() {
+        return id;
     }
 }

@@ -1,6 +1,5 @@
 package com.example.movies_7_1.model;
 
-
 import jakarta.persistence.*;
 
 import java.util.Set;
@@ -30,17 +29,14 @@ public class User {
     public User() {
     }
 
-    public User(String username, String password) {
+    public User(String username, String password, Set<Role> roles) {
         this.username = username;
         this.password = password;
+        this.roles = roles;
     }
 
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getUsername() {

@@ -14,6 +14,7 @@ public class MovieMapper {
                 .collect(Collectors.toList());
     }
 
+    //for returning what you want to set
     public static MovieDTO movieDTO(Movie movie) {
         return new MovieDTO(
                 movie.getId(),

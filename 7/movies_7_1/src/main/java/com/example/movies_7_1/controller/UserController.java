@@ -1,45 +1,52 @@
 package com.example.movies_7_1.controller;
 
 import com.example.movies_7_1.dto.UserDTO;
+import com.example.movies_7_1.model.Role;
+import com.example.movies_7_1.model.User;
 import com.example.movies_7_1.service.UserService;
-import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api")
 public class UserController {
+
     private final UserService userService;
 
-    public UserController(UserService userService) {
+    // Bean'as egzistuojas kontekste, dėl to galime
+    // ir @Autowire
+    private final PasswordEncoder passwordEncoder;
+
+    @Autowired
+    public UserController(UserService userService, PasswordEncoder passwordEncoder) {
         this.userService = userService;
+        this.passwordEncoder = passwordEncoder;
     }
 
-    // ✅ Get all users (Admins only)
-    @GetMapping
-    public ResponseEntity<List<UserDTO>> getAllUsers() {
+    @GetMapping("/users")
+    public ResponseEntity<List<User>> getUsers() {
         return ResponseEntity.ok(userService.findAllUsers());
     }
 
-    // ✅ Get user by username
-    @GetMapping("/{username}")
-    public ResponseEntity<UserDTO> getUserByUsername(@PathVariable String username) {
-        Optional<UserDTO> userDTO = userService.findUserByUsername(username);
-        return userDTO.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
-    }
+    @PostMapping("/users")
+    // Kai kursite patys, būtinai naudokite DTO!
+    public ResponseEntity<User> addUser(@RequestBody User user) {
 
-    // ✅ Create new user (Anyone can create an account)
-    @PostMapping
-    public ResponseEntity<?> createUser(@Valid @RequestBody UserDTO userDTO) {
-        try {
-            UserDTO savedUser = userService.saveUser(userDTO);
-            return ResponseEntity.ok(savedUser);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        // Slatpažodis yra šifruojamas prieš saugant į duomenų bazę
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        userService.saveUser(user);
+
+
+        return ResponseEntity.created(
+                        ServletUriComponentsBuilder.fromCurrentRequest()
+                                .path("/{id}")
+                                .buildAndExpand(user.getId())
+                                .toUri())
+                .body(user);
     }
 }

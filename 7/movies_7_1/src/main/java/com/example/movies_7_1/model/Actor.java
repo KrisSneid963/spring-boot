@@ -1,5 +1,6 @@
 package com.example.movies_7_1.model;
 
+
 import jakarta.persistence.*;
 
 @Entity

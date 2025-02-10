@@ -49,6 +49,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/users").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/users/{id}").hasAuthority("SCOPE_ROLE_ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/users/{id}").hasAuthority("SCOPE_ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/movies").hasAnyAuthority("SCOPE_ROLE_ADMIN", "SCOPE_ROLE_USER")
+                        .requestMatchers(HttpMethod.GET, "/api/movies/{id}").hasAnyAuthority("SCOPE_ROLE_ADMIN", "SCOPE_ROLE_USER")
                         .anyRequest().authenticated()
                 )
                 .csrf(csrf -> csrf.disable())

@@ -8,6 +8,7 @@ import com.example.movies_7_1.service.MovieService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -45,7 +46,11 @@ public class MovieController {
 //        return movieOptional.map(movie -> ResponseEntity.ok((List<Actor>) movie.getActors())).orElseGet(() -> ResponseEntity.notFound().build());
 //
 //    }
-
+//    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_USER')")
+//    @GetMapping("/movies")
+//    public List<Movie> getMovies() {
+//        return movieService.findAllMovies();
+//    }
 
     @PostMapping("/movies")
     public ResponseEntity<?> addMovie(@Valid @RequestBody MovieDTO movieDTO) {

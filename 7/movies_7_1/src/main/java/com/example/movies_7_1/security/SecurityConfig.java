@@ -46,7 +46,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/users").hasAuthority("SCOPE_ROLE_ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/users").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/movies").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/users/{id}").hasAuthority("SCOPE_ROLE_ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/users/{id}").hasAuthority("SCOPE_ROLE_ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/movies").hasAnyAuthority("SCOPE_ROLE_ADMIN", "SCOPE_ROLE_USER")

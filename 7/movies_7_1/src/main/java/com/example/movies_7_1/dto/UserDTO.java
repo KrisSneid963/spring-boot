@@ -11,7 +11,7 @@ public record UserDTO(
 String username,
 
         @NotNull
-        @Size(min = 8, max = 255, message = "Password must be between 8 and 255 characters")
+        @Size(min = 8, max = 100, message = "Password must be between 8 and 100 characters")
         String password,
 
         Set<Long> roles

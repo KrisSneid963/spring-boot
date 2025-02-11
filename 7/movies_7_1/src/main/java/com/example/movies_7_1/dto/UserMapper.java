@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 public class UserMapper {
 
-    // Convert List<User> to List<UserDTO>
+    //convert to tdo list of users
     public static List<UserDTO> userListToDTO(List<User> users) {
         return users.stream()
                 .map(UserMapper::userToDTO)

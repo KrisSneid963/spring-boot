@@ -3,10 +3,10 @@ package com.example.movies_7_1.controller;
 import com.example.movies_7_1.dto.MovieDTO;
 import com.example.movies_7_1.dto.MovieMapper;
 import com.example.movies_7_1.model.Movie;
-import com.example.movies_7_1.repository.ActorRepository;
 import com.example.movies_7_1.service.MovieService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -22,59 +22,50 @@ public class MovieController {
     private final MovieService movieService;
 
     @Autowired
-    public MovieController(MovieService movieService, ActorRepository actorRepository) {
+    public MovieController(MovieService movieService) {
         this.movieService = movieService;
     }
 
     @GetMapping("/movies")
     public ResponseEntity<List<Movie>> getAllMovies() {
-        return ResponseEntity.ok(movieService.getAllMovies());
+        List<Movie> movies = movieService.findAllMovies();
+        if (movies.isEmpty()) {
+            return ResponseEntity.noContent().build(); // 204 No Content if no movies
+        }
+        return ResponseEntity.ok(movies); // 200 OK if movies exist
     }
 
-    // id with actors and screenings
     @GetMapping("/movies/{id}")
     public ResponseEntity<Movie> getMovieById(@PathVariable Long id) {
         Optional<Movie> movieOptional = movieService.getMovieById(id);
-        return movieOptional.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
-
+        return movieOptional
+                .map(ResponseEntity::ok)  // 200 OK if movie found
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());  // 404 Not Found if movie not found
     }
 
-    //   movie with actors by one
-//    @GetMapping("actors/{id}")
-//    public ResponseEntity<List<Actor>> getActorsByMovieId(@PathVariable Long id) {
-//        Optional<Movie> movieOptional = movieService.getMovieById(id);
-//        return movieOptional.map(movie -> ResponseEntity.ok((List<Actor>) movie.getActors())).orElseGet(() -> ResponseEntity.notFound().build());
-//
-//    }
-//    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_USER')")
-//    @GetMapping("/movies")
-//    public List<Movie> getMovies() {
-//        return movieService.findAllMovies();
-//    }
-
     @PostMapping("/movies")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> addMovie(@Valid @RequestBody MovieDTO movieDTO) {
         if (movieDTO == null) {
-            return ResponseEntity.badRequest().body("Request body is missing!");
+            return ResponseEntity.badRequest().body("Request body is missing!");  // 400 Bad Request if body is missing
         }
-        System.out.println("Received MovieDTO: " + movieDTO);
 
         Movie savedMovie = movieService.saveMovie(MovieMapper.toMovie(movieDTO));
-
         return ResponseEntity.created(
                         ServletUriComponentsBuilder.fromCurrentRequest()
                                 .path("/{id}")
                                 .buildAndExpand(savedMovie.getId())
                                 .toUri())
-                .body(MovieMapper.movieDTO(savedMovie));
+                .body(MovieMapper.movieDTO(savedMovie));  // 201 Created if movie added
     }
 
-
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/movies/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteMovie(@PathVariable Long id) {
         if (movieService.deleteMovie(id)) {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.noContent().build();  // 204 No Content if movie deleted
         }
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();  // 404 Not Found if movie not found
     }
+
 }

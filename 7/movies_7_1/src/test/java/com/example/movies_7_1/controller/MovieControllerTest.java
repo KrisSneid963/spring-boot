@@ -36,7 +36,7 @@ public class MovieControllerTest {
     //movie nr 6 got by ordinary user
     @Test
     @WithMockUser(authorities = "SCOPE_ROLE_USER")
-    void getMovie_whenAuthenticated_thenReturnMovie() throws Exception {
+    void getMovie_whenAuthenticated_thenReturnMovie6_200_OK() throws Exception {
         // id6
         Movie movie = new Movie("Inception", "Christopher Nolan");
         given(movieService.getMovieById(6L)).willReturn(Optional.of(movie));  // Hardcoded ID 6
@@ -53,7 +53,7 @@ public class MovieControllerTest {
     // moviei d7
     @Test
     @WithMockUser(authorities = "SCOPE_ROLE_USER")
-    void getMovie_whenAuthenticated_thenReturnMovie7() throws Exception {
+    void getMovie_whenAuthenticated_thenReturnMovie7_200_OK() throws Exception {
         //id6
         Movie movie = new Movie("The Dark Knight", "Christopher Nolan");
         given(movieService.getMovieById(7L)).willReturn(Optional.of(movie));
@@ -70,7 +70,7 @@ public class MovieControllerTest {
     // delete movie 6
     @Test
     @WithMockUser(authorities = "SCOPE_ROLE_ADMIN")
-    void deleteMovie_whenAdminDelete_thenReturn204() throws Exception {
+    void deleteMovie_whenAdminDelete_thenReturn204_NO_Content_FOR_6() throws Exception {
         Long movieId = 6L;
 
         given(movieService.deleteMovie(movieId)).willReturn(true);
@@ -85,7 +85,7 @@ public class MovieControllerTest {
     // delete 7
     @Test
     @WithMockUser(authorities = "SCOPE_ROLE_ADMIN")
-    void deleteMovie_whenAdminDelete_thenReturn204ForMovie7() throws Exception {
+    void deleteMovie_whenAdminDelete_thenReturn204_NO_Content_For_7() throws Exception {
         Long movieId = 7L;
 
         given(movieService.deleteMovie(movieId)).willReturn(true);
@@ -100,7 +100,7 @@ public class MovieControllerTest {
     // Admin adds a new movie ( 201 Created)
     @Test
     @WithMockUser(authorities = "SCOPE_ROLE_ADMIN")
-    void addMovie_whenAdminAddMovie_thenReturn201() throws Exception {
+    void addMovie_whenAdminAddMovie_thenReturn201_CREATED() throws Exception {
         Movie movie = new Movie("Avatar", "James Cameron");
         given(movieService.saveMovie(ArgumentMatchers.any(Movie.class))).willReturn(movie);
 

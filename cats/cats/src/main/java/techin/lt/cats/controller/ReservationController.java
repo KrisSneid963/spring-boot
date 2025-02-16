@@ -13,7 +13,7 @@ public class ReservationController {
 
     private final ReservationService reservationService;
 
-    @Autowired  // You can add this annotation, though Spring can do this automatically with constructor injection
+    @Autowired
     public ReservationController(ReservationService reservationService) {
         this.reservationService = reservationService;
     }

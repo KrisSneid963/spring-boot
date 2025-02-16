@@ -1,30 +1,25 @@
 package techin.lt.cats.dto;
 
-import techin.lt.cats.dto.CatAdoptionDTO;
+import org.springframework.stereotype.Component;
 import techin.lt.cats.model.CatAdoption;
-import techin.lt.cats.model.User;
 
+@Component
 public class CatAdoptionMapper {
-    public static CatAdoptionDTO toCatAdoptionDTO(CatAdoption catAdoption) {
+
+    public CatAdoptionDTO toDto(CatAdoption catAdoption) {
         return new CatAdoptionDTO(
                 catAdoption.getId(),
-                catAdoption.getCatName(),
-                catAdoption.getStatus(),
-                catAdoption.getApplicationDate(),
-                catAdoption.getAdopter() != null ? catAdoption.getAdopter().getId() : null
+                catAdoption.getCatName(),  // ✅ String type
+                catAdoption.getStatus(),   // ✅ String type
+                catAdoption.getApplicationDate() // ✅ LocalDate type
         );
     }
 
-    public static CatAdoption toCatAdoption(CatAdoptionDTO catAdoptionDTO, User adopter) {
-        if (adopter == null) {
-            throw new IllegalArgumentException("Adopter cannot be null");
-        }
-        return new CatAdoption(
-                catAdoptionDTO.id(),
-                catAdoptionDTO.catName(),
-                catAdoptionDTO.status(),
-                catAdoptionDTO.applicationDate(),
-                adopter
-        );
+    public CatAdoption toEntity(CatAdoptionDTO dto) {
+        CatAdoption catAdoption = new CatAdoption();
+        catAdoption.setCatName(dto.catName());
+        catAdoption.setStatus(dto.status());
+        catAdoption.setApplicationDate(dto.applicationDate());
+        return catAdoption;
     }
 }

@@ -1,6 +1,6 @@
 package techin.lt.cats.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.aspectj.apache.bcel.classfile.Module;
 import org.springframework.stereotype.Service;
 import techin.lt.cats.model.CatAdoption;
 import techin.lt.cats.model.User;
@@ -12,26 +12,26 @@ import java.util.Optional;
 @Service
 public class CatAdoptionService {
 
-    @Autowired
-    private CatAdoptionRepository catAdoptionRepository;
+    private final CatAdoptionRepository catAdoptionRepository;
 
-    // Get all adoptions
+    public CatAdoptionService(CatAdoptionRepository catAdoptionRepository) {
+        this.catAdoptionRepository = catAdoptionRepository;
+    }
+
     public List<CatAdoption> getAllAdoptions() {
         return catAdoptionRepository.findAll();
     }
 
-    // Get adoption by ID
     public Optional<CatAdoption> getAdoptionById(Long id) {
         return catAdoptionRepository.findById(id);
     }
 
-    // Save a new cat adoption
     public CatAdoption saveAdoption(CatAdoption catAdoption) {
         return catAdoptionRepository.save(catAdoption);
     }
 
-    // Get adoptions by user (adopter)
-    public List<CatAdoption> getAdoptionsByUser(User adopter) {
-        return catAdoptionRepository.findByAdopter(adopter); // Find adoptions for a specific user
+    public List<CatAdoption> getAdoptionsByUser(Long userId) {
+        return catAdoptionRepository.findByUserId(userId);
     }
 }
+

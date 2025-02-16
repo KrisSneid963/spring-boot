@@ -1,45 +1,35 @@
 package techin.lt.cats.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "cat_adoptions")
 public class CatAdoption {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
     private String catName;
-
-    @Column(nullable = false)
     private String status;
-
-    @Column(nullable = false)
     private LocalDate applicationDate;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private User adopter;
+    private User user;
 
     public CatAdoption() {
     }
 
-    public CatAdoption(String catName, String status, LocalDate applicationDate, User adopter) {
+    public CatAdoption(String catName, String status, LocalDate applicationDate, User user) {
         this.catName = catName;
         this.status = status;
         this.applicationDate = applicationDate;
-        this.adopter = adopter;
+        this.user = user;
     }
 
-    public CatAdoption(Long id, @NotNull @Size(max = 60, message = "Maximum 60 characters") @Pattern(regexp = "^[A-Z][a-zA-Z\\s]*$", message = "Must start with an uppercase letter") String s, @NotNull String status, @NotNull LocalDate localDate, User adopter) {
-
-    }
 
     public Long getId() {
         return id;
@@ -73,11 +63,12 @@ public class CatAdoption {
         this.applicationDate = applicationDate;
     }
 
-    public User getAdopter() {
-        return adopter;
+    public User getUser() {
+        return user;
     }
 
-    public void setAdopter(User adopter) {
-        this.adopter = adopter;
+    public void setUser(User user) {
+        this.user = user;
     }
+
 }

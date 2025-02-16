@@ -3,6 +3,8 @@ package techin.lt.cats.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import techin.lt.cats.dto.CatAdoptionDTO;
+import techin.lt.cats.dto.CatAdoptionMapper;
 import techin.lt.cats.model.CatAdoption;
 import techin.lt.cats.model.User;
 import techin.lt.cats.service.CatAdoptionService;
@@ -10,6 +12,7 @@ import techin.lt.cats.service.UserService;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/cat-adoptions")
@@ -17,37 +20,50 @@ public class CatAdoptionController {
 
     private final CatAdoptionService catAdoptionService;
     private final UserService userService;
+    private final CatAdoptionMapper catAdoptionMapper;
 
     @Autowired
-    public CatAdoptionController(CatAdoptionService catAdoptionService, UserService userService) {
+    public CatAdoptionController(CatAdoptionService catAdoptionService,
+                                 UserService userService,
+                                 CatAdoptionMapper catAdoptionMapper) {
         this.catAdoptionService = catAdoptionService;
         this.userService = userService;
+        this.catAdoptionMapper = catAdoptionMapper;
     }
 
-    // Get all adoptions
+
     @GetMapping
-    public ResponseEntity<List<CatAdoption>> getAllAdoptions() {
-        return ResponseEntity.ok(catAdoptionService.getAllAdoptions());
+    public ResponseEntity<List<CatAdoptionDTO>> getAllAdoptions() {
+        List<CatAdoptionDTO> adoptions = catAdoptionService.getAllAdoptions()
+                .stream()
+                .map(catAdoptionMapper::toDto)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(adoptions);
     }
 
-    // Get adoption by ID
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<CatAdoption>> getAdoptionById(@PathVariable Long id) {
-        return ResponseEntity.ok(catAdoptionService.getAdoptionById(id));
+    public ResponseEntity<CatAdoptionDTO> getAdoptionById(@PathVariable Long id) {
+        Optional<CatAdoption> catAdoption = catAdoptionService.getAdoptionById(id);
+        return catAdoption.map(value -> ResponseEntity.ok(catAdoptionMapper.toDto(value)))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // Create a new adoption
     @PostMapping
-    public ResponseEntity<CatAdoption> saveAdoption(@RequestBody CatAdoption catAdoption) {
-        return ResponseEntity.ok(catAdoptionService.saveAdoption(catAdoption));
+    public ResponseEntity<CatAdoptionDTO> saveAdoption(@RequestBody CatAdoptionDTO catAdoptionDTO) {
+        CatAdoption savedAdoption = catAdoptionService.saveAdoption(catAdoptionMapper.toEntity(catAdoptionDTO));
+        return ResponseEntity.ok(catAdoptionMapper.toDto(savedAdoption));
     }
-
-    // Get adoptions by user (adopter)
+    
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<CatAdoption>> getAdoptionsByUser(@PathVariable Long userId) {
-        // Retrieve the user by ID
+    public ResponseEntity<List<CatAdoptionDTO>> getAdoptionsByUser(@PathVariable Long userId) {
         User user = userService.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        return ResponseEntity.ok(catAdoptionService.getAdoptionsByUser(user));
+
+        List<CatAdoptionDTO> adoptions = catAdoptionService.getAdoptionsByUser(user.getId())
+                .stream()
+                .map(catAdoptionMapper::toDto)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(adoptions);
     }
 }

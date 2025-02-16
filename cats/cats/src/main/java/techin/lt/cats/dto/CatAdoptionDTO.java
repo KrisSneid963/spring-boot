@@ -4,8 +4,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-import java.time.LocalDate;
-
 public record CatAdoptionDTO(
         Long id,
 
@@ -17,10 +15,7 @@ public record CatAdoptionDTO(
         @NotNull
         String status,
 
-        @NotNull
-        LocalDate applicationDate,
+        java.time.LocalDate applicationDate
 
-        @NotNull
-        Long adopterId
 ) {
 }

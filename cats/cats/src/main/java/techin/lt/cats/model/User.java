@@ -1,29 +1,35 @@
 package techin.lt.cats.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Setter
 @Entity
 @Table(name = "users")
 public class User implements UserDetails {
 
+
+    @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     private String username;
     private String password;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "reservations")
-    @JoinColumn(name = "user_id")
-    private List<Reservation> reservations;
+    @Getter
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<CatAdoption> adoptions;
 
+    @Getter
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "users_roles",
@@ -35,63 +41,26 @@ public class User implements UserDetails {
     public User() {
     }
 
-    // Constructor with parameters
-    public User(long id, String username, String password, List<Reservation> reservations, List<Role> roles) {
-        this.id = id;
-        this.username = username;
-        this.password = password;
-        this.reservations = reservations;
-        this.roles = roles;
-    }
-
-    // Getters and Setters
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
+    @Override
     public String getUsername() {
         return username;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
+    @Override
     public String getPassword() {
         return password;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public List<Reservation> getReservations() {
-        return reservations;
-    }
-
     public void setReservations(List<Reservation> reservations) {
-        this.reservations = reservations;
     }
-
-    public List<Role> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(List<Role> roles) {
-        this.roles = roles;
-    }
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles.stream()
-                .map(role -> (GrantedAuthority) role::getName)
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName().toUpperCase()))
                 .collect(Collectors.toList());
     }
+
 
     @Override
     public boolean isAccountNonExpired() {

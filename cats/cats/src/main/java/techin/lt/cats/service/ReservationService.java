@@ -12,7 +12,7 @@ public class ReservationService {
     private List<ReservationDTO> reservationList = new ArrayList<>();
 
     public ReservationDTO createReservation(ReservationDTO reservationDTO) {
-        Long generatedId = (long) (reservationList.size() + 1); // Auto-generate ID
+        Long generatedId = (long) (reservationList.size() + 1);
         ReservationDTO newReservationDTO = new ReservationDTO(
                 generatedId,
                 reservationDTO.dateOfReservation(),

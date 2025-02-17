@@ -44,19 +44,18 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/users").hasAuthority("SCOPE_ROLE_ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/users/{id}").hasAuthority("SCOPE_ROLE_ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/users/{id}").hasAuthority("SCOPE_ROLE_ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/events").hasAnyAuthority("SCOPE_ROLE_ADMIN", "SCOPE_ROLE_USER")
-                        .requestMatchers(HttpMethod.GET, "/api/events/{id}").hasAnyAuthority("SCOPE_ROLE_ADMIN", "SCOPE_ROLE_USER")
-                        .requestMatchers(HttpMethod.POST, "/api/events/{eventId}/register").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/events/{eventId}/participants").hasAuthority("SCOPE_ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/events").hasAuthority("SCOPE_ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/events/**").hasAuthority("SCOPE_ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/events/").hasAnyAuthority("SCOPE_ROLE_ADMIN", "SCOPE_ROLE_USER")
+                        .requestMatchers(HttpMethod.POST, "/api/events/**/register").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/events/*/participants").hasAuthority("SCOPE_ROLE_ADMIN")
                         .anyRequest().permitAll()
+
                 )
-                .csrf(csrf -> csrf.disable()) // CSRF should be disabled for stateless authentication
-                .httpBasic(Customizer.withDefaults()) // Enables basic authentication
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults())) // Configures JWT-based auth
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Makes authentication stateless
+                .csrf(csrf -> csrf.disable())
+                .httpBasic(Customizer.withDefaults())
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(exceptions -> exceptions
                         .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
                         .accessDeniedHandler(new BearerTokenAccessDeniedHandler()));

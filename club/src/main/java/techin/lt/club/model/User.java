@@ -1,14 +1,17 @@
 package techin.lt.club.model;
 
 import jakarta.persistence.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "users")
-public class User {
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,8 +24,7 @@ public class User {
     private String password;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<techin.lt.club.model.Registrations> registrations = new HashSet<>();
-
+    private Set<Registrations> registrations = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "users_roles",
@@ -42,10 +44,12 @@ public class User {
         return id;
     }
 
+    @Override
     public String getUsername() {
         return username;
     }
-
+    
+    @Override
     public String getPassword() {
         return password;
     }
@@ -54,7 +58,7 @@ public class User {
         return roles;
     }
 
-    public Set<techin.lt.club.model.Registrations> getRegistrations() {
+    public Set<Registrations> getRegistrations() {
         return registrations;
     }
 
@@ -71,10 +75,37 @@ public class User {
     }
 
     public void setRoles(Set<Role> roles) {
-        this.roles = (Set<Role>) roles;
+        this.roles = roles;
     }
 
     public void setRegistrations(Set<Registrations> registrations) {
         this.registrations = registrations;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return roles.stream()
+                .map(role -> (GrantedAuthority) () -> role.getName())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }

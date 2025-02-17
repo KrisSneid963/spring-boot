@@ -1,46 +1,46 @@
 package techin.lt.club.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import techin.lt.club.model.Role;
 import techin.lt.club.model.User;
 import techin.lt.club.repository.RoleRepository;
-import techin.lt.club.service.UserService;
+import techin.lt.club.repository.UserRepository;
 
-import java.util.HashSet;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/api/auth")
+@CrossOrigin("*")
 public class AuthController {
 
-    @Autowired
-    private UserService userService;
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private RoleRepository roleRepository;
+    public AuthController(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody User user) {
+    public ResponseEntity<?> registerUser(@RequestBody User user) {
+        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
+            return ResponseEntity.badRequest().body("Username is already taken");
+        }
+
+        List<Role> userRole = roleRepository.findByName("ROLE_USER");
+        if (userRole.isEmpty()) {
+            return ResponseEntity.badRequest().body("Default role ROLE_USER not found");
+        }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        Optional<Role> userRole = roleRepository.findById(1L);
+        user.setRoles(Collections.singleton(userRole.get(0)));
 
-        Set<Role> assignedRoles = new HashSet<>();
-        userRole.ifPresent(assignedRoles::add);
-
-        user.setRoles(assignedRoles);
-
-        userService.saveUser(user);
-
-        return ResponseEntity.ok("User created successfully!");
+        userRepository.save(user);
+        return ResponseEntity.ok("User registered successfully!");
     }
 }
